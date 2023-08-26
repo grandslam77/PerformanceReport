@@ -47,3 +47,12 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# foldery danych
+sources/
+poprzednie_raporty/
+pomocnicze/
+
+#folder z wyjściowym raportem
+output/
+

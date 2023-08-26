@@ -1,0 +1,212 @@
+---
+date: "March 22, 2005"
+title: "Performance report"
+author: Andrzej Kopec (andrzej.kopec@brenntag.pl)
+geometry: left=1cm,right=1cm,top=0.5cm,bottom=1cm, a4paper
+documentclass: report
+classoption: landscape
+header-includes:
+- \AtBeginDocument{\let\maketitle\relax}
+ # % Allows me to use and print accented characters (document is in Spanish)
+- \usepackage[T1]{fontenc}
+- \usepackage[utf8]{inputenc}
+ # % It allows me to place the tables or images where I want, whether there is space or not
+- \usepackage{float}
+ # % It has several commands to have more control over the tables (at least I use it for this)
+- \usepackage{array}
+ # % For custom headers and footers
+- \usepackage{fancyhdr}
+#  % This line allows me to manipulate images within latex
+- \usepackage{graphicx}
+ # % This package has several uses, for this document I used it to manage hyperlinks and introduce metadata to the document
+ # % These lines define the font that I want to use in the document
+- \usepackage{caption} #  æeby schować numery tabel a zostawić tylko opis
+- \usepackage{helvet}
+- \renewcommand{\familydefault}{\sfdefault}
+- \usepackage{datetime}
+- \usepackage{numprint}
+- \usepackage{parskip}
+- \usepackage{siunitx}
+- \usepackage{pdflscape}
+- \usepackage{svg}
+- \usepackage{xstring}
+- \usepackage{fontspec}
+- \usepackage{fontsize}
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage{titlesec}
+- \usepackage[titletoc]{appendix}
+- \usepackage{wrapfig}
+- \usepackage{tgheros}
+- \usepackage{float}
+- \usepackage{colortbl}
+- \usepackage{pdflscape}
+- \usepackage{tabu}
+- \usepackage[singlelinecheck=false]{caption}
+- \usepackage{threeparttable}
+- \usepackage{threeparttablex}
+- \usepackage[normalem]{ulem}
+- \usepackage{lipsum}  
+- \usepackage{makecell}
+- \usepackage{xcolor}
+- \usepackage{afterpage}
+#- \usepackage{helvet}
+#- \renewcommand\familydefault{\sfdefault}
+#- \usepackage[polish]{babel}
+#- \setmainfont{72}
+- \usepackage{setspace}
+- \usepackage{amsmath, booktabs, caption, longtable}
+#- \setlength{\headheight}{13pt}
+- \pagestyle{fancy}
+- \lfoot{\fontsize{6pt}{11pt}\selectfont STRICLY CONFIDENTIAL. SHARING WITH UNAUTHORIZED PERSONS IS NOT PERMITTED}
+- \rfoot{\fontsize{6pt}{11pt}\selectfont {\thepage}}
+- \rhead{\includegraphics[width=35mm]{BrenntagPurple.png}\vspace{-8mm}}
+- \renewcommand{\headrulewidth}{0pt}
+- \cfoot{}
+- \chead{}
+- \lhead{}
+# - \rhead{}   żeby nic się nie pojawiało po prawej stronie nagłówka strony
+# - \setcounter{secnumdepth}{0} #gubią się odniesienia 
+- \usepackage[export]{adjustbox}
+
+- \renewcommand{\contentsname}{Table of contents} 
+- \usepackage{hyperref} #ten pakiet musi być ładowany  na końcu
+# - \makeatletter
+# - \renewcommand{\@seccntformat}[0]{}
+# - \makeatother
+
+
+output:
+  pdf_document:
+    keep_tex: yes
+    latex_engine: xelatex
+    number_sections: yes
+
+
+
+---
+
+
+
+<!-- ```{r seltup, include=FALSE} -->
+<!-- # Zaimportuj czcionki -->
+<!-- library(extrafont) -->
+<!-- font_import() -->
+
+<!-- # Wybierz niestandardową czcionkę -->
+<!-- loadfonts(device = "win") -->
+<!-- windowsFonts(mojafont = "Brenntag Sans") -->
+
+<!-- ``` -->
+
+
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries}{}{0pt}{\Huge}
+  
+\thispagestyle{empty}
+\definecolor{Brenntag}{RGB}{26, 0, 51}
+\pagecolor{Brenntag}\afterpage{\nopagecolor}
+
+
+\fontsize{6}{20}
+<!-- \fontsize{12}{22} -->
+\selectfont
+\captionsetup[table]{labelformat=empty}
+
+<!-- \vspace{10mm} -->
+
+
+<!-- \addtocontents{toc}{\protect\newpage} -->
+<!-- <!-- \noindent\makebox[\linewidth]{\rule{\paperwidth}{0.8pt}} --> -->
+
+<!-- <!-- \noindent\rule{25cm}{0.4pt} --> -->
+
+
+\textbf{\textcolor{white}{\HUGE BRENNTAG CEE PERFORMANCE REPORT}}
+\vspace{-4mm}
+
+\textbf{\textcolor{white}{\small `r paste(MiesiacAnalizyTekst,RokAnalizy,sep=" ")`}}
+
+\vspace{10mm}
+\includegraphics[width=330pt]{BREN.png} 
+
+<!-- \makebox[\textheight]{\includegraphics[width=\textheight]{BREN2.png}} -->
+
+
+\newpage
+
+\newgeometry{top=1.5cm,bottom=0.8cm,right=4cm,left=1.5cm}
+
+
+\thispagestyle{empty}
+
+
+
+\footnotesize \tableofcontents
+
+\thispagestyle{empty}
+
+\newpage
+\newgeometry{top=1.5cm,bottom=1cm,right=4cm,left=1.5cm}
+
+
+
+\thispagestyle{empty}
+# CEE TOTAL RESULT
+\vspace{-1.7cm}
+\rule{730pt}{1.5pt}
+
+
+\thispagestyle{empty}
+
+
+\newpage
+\newgeometry{top=1.5cm,bottom=1.3cm,right=0.8cm,left=0.8cm}
+```{r setup, include=FALSE,cache=FALSE}
+knitr::opts_chunk$set(cache = FALSE,echo = FALSE,warning = FALSE,error = FALSE,comment = FALSE)
+```
+
+
+
+\npthousandsep{\,}
+
+## TOTAL RESULT (`r MiesiacAnalizyTekst`)
+
+\vspace{-4mm}
+
+\leftskip 36pt  \scriptsize 3rd party + intercompany
+\vspace{-1mm}
+
+```{r MAINTOTAL, echo=FALSE,warning=FALSE}
+Tablica_X             <- CreateTable(MainTotal,nazwa_tabeli = "MainTotal")
+Tabela                <- Tablica_X[[1]]
+Wiersze_do_boldowania <- Tablica_X[[2]]
+
+Quant         <- Tabela[nrow(Tabela),2]
+Quant_PRV     <- Tabela[nrow(Tabela),3]
+GrossProf     <- Tabela[nrow(Tabela),6]
+GrossProf_PRV <- Tabela[nrow(Tabela),7]
+Turnov        <- Tabela[nrow(Tabela),10]
+Turnov_PRV    <- Tabela[nrow(Tabela),11]
+GPMT          <- Tabela[nrow(Tabela),14]
+GPMT_PRV      <- Tabela[nrow(Tabela),15]
+
+
+Tabela[,2:17] <- lapply(Tabela[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+zen <-kbl(Tabela,  booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+row_spec(Wiersze_do_boldowania, bold = T)  %>% #, background = "#E3E3E3") %>%       WYBOLDOWANIE POWINNO BYĆ SPARAMETRYZOWANE
+row_spec(nrow(Tabela), bold = T ,background = "#E3E3E3") 
+
+
+zen <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",zen)
+
+zen
+
+
+```

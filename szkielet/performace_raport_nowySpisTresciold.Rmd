@@ -1,0 +1,2289 @@
+---
+date: "March 22, 2005"
+title: "Performance report"
+author: Andrzej Kopec (andrzej.kopec@brenntag.pl)
+geometry: left=1cm,right=1cm,top=0.5cm,bottom=1cm, a4paper
+documentclass: report
+classoption: landscape
+header-includes:
+- \AtBeginDocument{\let\maketitle\relax}
+ # % Allows me to use and print accented characters (document is in Spanish)
+- \usepackage[T1]{fontenc}
+- \usepackage[utf8]{inputenc}
+ # % It allows me to place the tables or images where I want, whether there is space or not
+- \usepackage{float}
+ # % It has several commands to have more control over the tables (at least I use it for this)
+- \usepackage{array}
+ # % For custom headers and footers
+- \usepackage{fancyhdr}
+#  % This line allows me to manipulate images within latex
+- \usepackage{graphicx}
+ # % This package has several uses, for this document I used it to manage hyperlinks and introduce metadata to the document
+ # % These lines define the font that I want to use in the document
+- \usepackage{caption} #  aby schować numery tabel a zostawić tylko opis
+- \usepackage{helvet}
+- \renewcommand{\familydefault}{\sfdefault}
+- \usepackage{datetime}
+- \usepackage{numprint}
+- \usepackage{parskip}
+- \usepackage{siunitx}
+- \usepackage{pdflscape}
+- \usepackage{svg}
+- \usepackage{xstring}
+- \usepackage{fontspec}
+- \usepackage{fontsize}
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage{titlesec}
+- \usepackage[titletoc]{appendix}
+- \usepackage{wrapfig}
+- \usepackage{tgheros}
+- \usepackage{float}
+- \usepackage{colortbl}
+- \usepackage{pdflscape}
+- \usepackage{tabu}
+- \usepackage[singlelinecheck=false]{caption}
+- \usepackage{threeparttable}
+- \usepackage{threeparttablex}
+- \usepackage[normalem]{ulem}
+- \usepackage{lipsum}  
+- \usepackage{makecell}
+- \usepackage{xcolor}
+- \usepackage{afterpage}
+#- \usepackage{helvet}
+#- \renewcommand\familydefault{\sfdefault}
+#- \usepackage[polish]{babel}
+#- \setmainfont{72}
+- \usepackage{setspace}
+- \usepackage{amsmath, booktabs, caption, longtable}
+#- \setlength{\headheight}{13pt}
+- \pagestyle{fancy}
+- \lfoot{\fontsize{6pt}{11pt}\selectfont STRICLY CONFIDENTIAL. SHARING WITH UNAUTHORIZED PERSONS IS NOT PERMITTED}
+- \rfoot{\fontsize{6pt}{11pt}\selectfont {\thepage}}
+- \rhead{\includegraphics[width=35mm]{BrenntagPurple.png}\vspace{-8mm}}
+- \renewcommand{\headrulewidth}{0pt}
+- \cfoot{}
+- \chead{}
+- \lhead{}
+# - \rhead{}   żeby nic się nie pojawiało po prawej stronie nagłówka strony
+# - \setcounter{secnumdepth}{0} #gubią się odniesienia 
+- \usepackage[export]{adjustbox}
+- \setlength\parindent{24pt}
+- \renewcommand{\contentsname}{Table of contents} 
+- \usepackage{hyperref} #ten pakiet musi być ładowany  na końcu
+# - \makeatletter
+# - \renewcommand{\@seccntformat}[0]{}
+# - \makeatother
+
+
+
+output:
+  pdf_document:
+    keep_tex: yes
+    latex_engine: xelatex
+    number_sections: yes
+
+---
+
+
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries}{}{0pt}{\Huge}
+  
+\thispagestyle{empty}
+\definecolor{Brenntag}{RGB}{255, 255, 255}
+\pagecolor{Brenntag}\afterpage{\nopagecolor}
+\fontfamily{qhv}
+\fontsize{12}{23}
+<!-- \fontsize{12}{22} -->
+
+\selectfont
+\captionsetup[table]{labelformat=empty}
+
+<!-- \vspace{10mm} -->
+
+
+<!-- \addtocontents{toc}{\protect\newpage} -->
+<!-- <!-- \noindent\makebox[\linewidth]{\rule{\paperwidth}{0.8pt}} --> 
+
+<!-- <!-- \noindent\rule{25cm}{0.4pt} --> 
+
+\newgeometry{top=5.5cm,bottom=0.8cm,right=9cm,left=1.5cm}
+
+<!--\textbf{\textcolor{white}{\HUGE BRENNTAG CEE PERFORMANCE REPORT}}--> 
+\textbf{\textcolor{black}{\LARGE BRENNTAG CEE PERFORMANCE REPORT}}
+
+\vspace{-4mm} 
+\includegraphics[width=750pt]{liniaBR.png} 
+
+\vspace{-2mm}
+\textbf{\textcolor{black}{\small `r paste(MiesiacAnalizyTekst,RokAnalizy,sep=" ")`}}
+
+
+
+
+
+<!-- \makebox[\textheight]{\includegraphics[width=\textheight]{BREN2.png}} -->
+
+
+
+```{python, echo=FALSE, warnings=FALSE}
+# 
+# import pandas as pd
+# import plotly.express as px
+# import numpy as np
+# import plotly.io as pio
+
+# # import data from xlsx file
+# df = pd.read_excel('C:/Users/plakopec/OneDrive - brenntagceen/PROJEKTY/PerformenceRaportAnalizy/PerformanceRaport/sources/Dane_do_mapy_drzewaZS.xlsx', sheet_name='Sheet 1')
+# 
+# my_colors = [
+#     # [0.0, '#FF0000'], # ciemny zielony
+#     # [0.5, '#FFFFFF'], # biały
+#     # [1.0, '#064F06']  # czerwony
+#     [0.0, '#B714CF'], # ciemny zielony
+#     [0.5, '#FFFFFF'], # biały
+#     [1.0, '#0C72ED']  # czerwony
+# ]
+# 
+# colorscale = my_colors    
+# 
+# fig = px.treemap(df, path=[px.Constant("ZMIANA WOLUMENU I-III W PORÓWNANIU DO 2022"),'ZMIANA WOLUMENU','PM','Hierarchia3'], values='Wolumen [MT]',
+#         color='Zmiana marży YTD', 
+#         color_continuous_scale=colorscale,
+#         color_continuous_midpoint=0)
+#                  
+# fig.update_layout(margin = dict(t=10, l=5, r=5, b=5),showlegend=False)
+# fig.update_traces(marker = dict(cornerradius=4))
+# 
+# 
+# 
+# fig.show()
+# pio.write_html(fig, file='C:/Users/plakopec/OneDrive - brenntagceen/PROJEKTY/PerformenceRaportAnalizy/PerformanceRaport/output/produkty.html', auto_open=False)
+# 
+
+
+```
+
+
+\newpage
+
+\newgeometry{top=1.5cm,bottom=0.8cm,right=4cm,left=1.5cm}
+
+
+\thispagestyle{empty}
+
+
+
+\footnotesize \tableofcontents
+
+\thispagestyle{empty}
+
+\newpage
+\newgeometry{top=1.5cm,bottom=1cm,right=4cm,left=1.5cm}
+
+
+
+\thispagestyle{empty}
+# CEE TOTAL RESULT
+\vspace{-1.7cm}
+\rule{730pt}{1.5pt}
+
+
+\thispagestyle{empty}
+
+
+
+
+
+\newpage
+\newgeometry{top=1.5cm,bottom=1.3cm,right=0.8cm,left=0.8cm}
+```{r setup, include=FALSE,cache=FALSE}
+knitr::opts_chunk$set(cache = FALSE,echo = FALSE,warning = FALSE,error = FALSE,comment = FALSE)
+```
+
+\npthousandsep{\,}
+
+## TOTAL RESULT (`r MiesiacAnalizyTekst`)
+
+<!-- \vspace{-4mm} -->
+
+<!-- \leftskip 36pt  \scriptsize 3rd party + intercompany -->
+<!-- \vspace{-1mm} -->
+<!-- \leftskip 0pt -->
+
+```{r MAINTOTAL, echo=FALSE,warning=FALSE}
+Tablica_X             <- CreateTable(MainTotal,nazwa_tabeli = "MainTotal")
+#browser()
+Tabela                <- Tablica_X[[1]]
+Wiersze_do_boldowania <- Tablica_X[[2]]
+
+Quant         <- Tabela[nrow(Tabela),2]
+Quant_PRV     <- Tabela[nrow(Tabela),3]
+GrossProf     <- Tabela[nrow(Tabela),6]
+GrossProf_PRV <- Tabela[nrow(Tabela),7]
+Turnov        <- Tabela[nrow(Tabela),10]
+Turnov_PRV    <- Tabela[nrow(Tabela),11]
+GPMT          <- Tabela[nrow(Tabela),14]
+GPMT_PRV      <- Tabela[nrow(Tabela),15]
+
+
+Tabela[,2:17] <- lapply(Tabela[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+zen <-kbl(Tabela,  booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+row_spec(Wiersze_do_boldowania, bold = T)  %>% #, background = "#E3E3E3") %>%       WYBOLDOWANIE POWINNO BYĆ SPARAMETRYZOWANE
+row_spec(nrow(Tabela), bold = T ,background = "#E3E3E3") 
+
+
+zen <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",zen)
+
+zen
+
+
+```
+
+## TOTAL RESULT (YTD)
+
+```{r MAINTOTALYTD, echo=FALSE}
+Tablica_X              <- CreateTable(MainTotalYTD,nazwa_tabeli = "MainTotalYTD")
+Tabela1                <- Tablica_X[[1]]
+Wiersze_do_boldowania1 <- Tablica_X[[2]]
+
+Quant_YTD         <- Tabela1[nrow(Tabela1),2]
+Quant_PRV_YTD     <- Tabela1[nrow(Tabela1),3]
+GrossProf_YTD     <- Tabela1[nrow(Tabela1),6]
+GrossProf_PRV_YTD <- Tabela1[nrow(Tabela1),7]
+Turnov_YTD        <- Tabela1[nrow(Tabela1),10]
+Turnov_PRV_YTD    <- Tabela1[nrow(Tabela1),11]
+GPMT_YTD          <- Tabela1[nrow(Tabela1),14]
+GPMT_PRV_YTD      <- Tabela1[nrow(Tabela1),15]
+
+Tabela        <- as.data.frame(Tabela)
+
+Tabela1[,2:17] <- lapply(Tabela1[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+#Tabela1[Tabela1$SubRegion=="Poland",4] <-paste("\\underline{", Tabela1[Tabela1$SubRegion=="Poland",4], "}",sep="")
+#Tabela1[Tabela1$SubRegion=="Poland",4] <-paste0("\\href{", "produkty.html",Kraj1, "}","{", Tabela1[Tabela1$SubRegion=="Poland",4], "}")
+
+
+
+zen2<-kbl(Tabela1, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+row_spec(Wiersze_do_boldowania1, bold = T)  %>%   # ,background = "#E3E3E3"
+ #, background = "#E3E3E3") %>%       WYBOLDOWANIE SPARAMETRYZOWANE
+row_spec(nrow(Tabela), bold = T, background = "#E3E3E3")
+
+zen2<-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",zen2)
+
+source(here::here("moduly","zbuduj_baze2.R"))
+
+zen2
+
+```
+
+\newpage
+
+## TOTAL RESULT. CHARTS.
+
+```{r Wykres, fig.height=6.7,fig.width=szerokoscWykresuTotalResult}
+
+
+
+
+
+WykresZZ
+
+```
+
+\newpage
+
+## COUNTRIES BY DIVISIONS (`r MiesiacAnalizyTekst`)
+
+
+```{r COUNTRIESBYDIVISIONy}
+
+Tablica_X               <- CreateTable(CountriesByDivision,nazwa_tabeli ="CountriesByDivision",pomocnicza = PHOSPHATESFAS2a)
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+BoldowaniePomocnicze    <- Tablica_X[[4]]
+TotalWiersz             <- max(podkreslanie)+1
+
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(TotalWiersz, bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE) %>% 
+  row_spec(podkreslanie, bold = T, background = "#C9C9C9") %>%
+  row_spec(BoldowaniePomocnicze, bold = T)#,background = "#E3E3E3")
+
+
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+
+\newpage
+
+## COUNTRIES BY DIVISIONS (YTD)
+
+
+<!-- \scriptsize 3rd party + intercompany -->
+<!-- \vspace{-2mm} -->
+
+
+```{r COUNTRIESBYDIVISION}
+
+Tablica_X               <- CreateTable(CountriesByDivision_YTD,nazwa_tabeli ="CountriesByDivision_YTD",pomocnicza = PHOSPHATESFAS_YTD2a)
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+BoldowaniePomocnicze    <- Tablica_X[[4]]
+TotalWiersz             <- max(podkreslanie)+1
+
+
+
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(TotalWiersz, bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE) %>% 
+  row_spec(podkreslanie, bold = T, background = "#C9C9C9") %>%
+  row_spec(BoldowaniePomocnicze, bold = T)#,background = "#E3E3E3")
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+\newpage
+
+## COUNTRIES BY SALES PARTY (`r MiesiacAnalizyTekst`)
+
+
+```{r SALES_MAIN, echo=FALSE}
+
+Tablica_X             <- CreateTable(SALES_MAIN,nazwa_tabeli = "SALES_MAIN")
+Tabela39                <- Tablica_X[[1]]
+Wiersze_do_boldowania39 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+
+Tabela39[,2:17] <- lapply(Tabela39[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon42<-kbl(Tabela39, longtable=TRUE,booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position","repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]])-3, bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania39, bold = T, hline_after=TRUE)#,background = "#E3E3E3") 
+  
+
+klon42 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon42)
+klon42
+
+```
+
+\newpage
+
+## COUNTRIES BY SALES PARTY (YTD)
+
+
+
+```{r SALES_MAIN_YTD, echo=FALSE}
+
+Tablica_X               <- CreateTable(SALES_MAIN_YTD,nazwa_tabeli = "SALES_MAIN_YTD")
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43<-kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position","repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]])-3, bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE)
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+
+
+
+\newpage
+## COUNTRIES BY INDUSTRIES (`r MiesiacAnalizyTekst`)
+```{r COUNTRIESBYINDUSTRIESy}
+
+Tablica_X               <- CreateTable(CountriesByIndustries)
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE)
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+
+\newpage
+## COUNTRIES BY INDUSTRIES (YTD)
+```{r COUNTRIESBYINDUSTRIES}
+
+Tablica_X               <- CreateTable(CountriesByIndustries_YTD)
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T, hline_after=TRUE)
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+
+
+\newpage
+
+## DIVISIONS (`r MiesiacAnalizyTekst`)
+
+
+```{r MAIN_ISP, echo=FALSE}
+
+Tablica_X                <- CreateTable(ICCPM_DATA,nazwa_tabeli ="ICCPM_DATA",pomocnicza = PHOSPHATESFAS)
+Tabela10                 <- Tablica_X[[1]]
+Wiersze_do_boldowania10  <- Tablica_X[[2]]
+
+
+Tabela10[,2:17] <- lapply(Tabela10[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon8 <-kbl(Tabela10, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+row_spec(nrow(Tablica_X[[1]])-2, bold = T,background = TloTotalTotal) %>% 
+row_spec(Wiersze_do_boldowania10,hline_after = TRUE, bold = T)#,background = "#E3E3E3") 
+
+klon8 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon8)
+klon8
+
+```
+
+
+\newpage
+
+## DIVISIONS (YTD)
+
+
+```{r MAIN_ISPY, echo=FALSE}
+
+Tablica_X             <- CreateTable(ICCPM_DATAY ,nazwa_tabeli ="ICCPM_DATAY",pomocnicza = PHOSPHATESFAS_YTD )
+Tabela11                <- Tablica_X[[1]]
+Wiersze_do_boldowania11 <- Tablica_X[[2]]
+
+Tabela11[,2:17] <- lapply(Tabela11[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon9 <-kbl(Tabela11, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+row_spec(nrow(Tablica_X[[1]])-2, bold = T,background = TloTotalTotal) %>% 
+row_spec(Wiersze_do_boldowania11 , hline_after = TRUE, bold = T)#,background = "#E3E3E3") 
+
+klon9 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon9)
+klon9
+
+```
+
+
+
+
+\newpage
+## DIVISIONS BY COUNTRY (`r MiesiacAnalizyTekst`)
+```{r TotalDivisionSalesCountry}
+
+Tablica_X               <- CreateTable(DivisionsByCountry,nazwa_tabeli ="DivisionsByCountry",pomocnicza = PHOSPHATESFAS2 )
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+BoldowaniePomocnicze    <- Tablica_X[[4]]
+TotalWiersz             <- max(podkreslanie)+1
+Tabela40[,2:17]         <- lapply(Tabela40[,2:17], function(x) {
+                                cell_spec(x,
+                                color = ifelse(x<0,"#C815E0","black"))
+                                })
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(TotalWiersz, bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE) %>% 
+row_spec(podkreslanie, bold = T, background = "#C9C9C9") %>% 
+row_spec(BoldowaniePomocnicze, bold = T, hline_after = TRUE)#,background = "#C9C9C9")
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+
+\newpage
+## DIVISIONS BY COUNTRY (YTD)
+```{r TotalDivisionSalesCountryYTD}
+
+Tablica_X               <- CreateTable(DivisionsByCountry_YTD,nazwa_tabeli ="DivisionsByCountry_YTD",pomocnicza = PHOSPHATESFAS_YTD2 )
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+BoldowaniePomocnicze    <- Tablica_X[[4]]
+TotalWiersz             <- max(podkreslanie)+1
+
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(TotalWiersz, bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE) %>% 
+row_spec(podkreslanie, bold = T,background = "#C9C9C9") %>% #, background = "#C9C9C9") %>% 
+row_spec(BoldowaniePomocnicze, bold = T,hline_after = TRUE)#,background = "#E3E3E3")
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+
+\newpage
+
+## DIVISIONS BY SALES PARTY (`r MiesiacAnalizyTekst`)
+
+```{r TotalDivisionSalesParty}
+
+Tablica_X               <- CreateTable(TotalDivisionSalesParty,nazwa_tabeli = "TotalDivisionSalesParty")
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+BoldowaniePomocnicze    <- Tablica_X[[4]]
+TotalWiersz             <- max(podkreslanie)+1
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(TotalWiersz, bold = T,background = TloTotalTotal) %>%  
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE) %>% 
+row_spec(podkreslanie, bold = T, background = "#C9C9C9") %>% 
+row_spec(BoldowaniePomocnicze, bold = T,hline_after=TRUE)#,background = "#C9C9C9")
+ 
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+
+\newpage
+
+## DIVISIONS BY SALES PARTY (YTD)
+
+```{r TotalDivisionSalesPartyYTD}
+
+Tablica_X               <- CreateTable(TotalDivisionSalesParty_YTD,nazwa_tabeli ="TotalDivisionSalesParty_YTD")
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+BoldowaniePomocnicze    <- Tablica_X[[4]]
+TotalWiersz             <- max(podkreslanie)+1
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(TotalWiersz, bold = T,background = TloTotalTotal) %>%
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40,hline_after=TRUE, bold = T) %>% 
+row_spec(podkreslanie, bold = T, background = "#C9C9C9") %>% 
+row_spec(BoldowaniePomocnicze, bold = T,hline_after=TRUE)#,background = "#C9C9C9")
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+
+
+
+\newpage
+## INDUSTRIES BY COUNTRY (`r MiesiacAnalizyTekst`)
+```{r TotalIndustrySalesCountry}
+
+Tablica_X               <- CreateTable(IndustryByCountry)
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE)
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+\newpage
+## INDUSTRIES BY COUNTRY (YTD)
+```{r TotalIndustryCountryYTD}
+
+Tablica_X               <- CreateTable(IndustryByCountry_YTD)
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE)
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+
+\newpage
+
+## INDUSTRIES AND MATERIAL TYPES  (`r MiesiacAnalizyTekst`)
+
+ES-essentials and SP-specialties based on local classification - dependent ONLY on product parameters&local decisions, not connected with customer/industry
+
+```{r MAIN_ESSP_T, echo=FALSE}
+
+Tablica_X             <- CreateTable(MAIN_ESSP_T,nazwa_tabeli ="MAIN_ESSP_T")
+Tabela8                <- Tablica_X[[1]]
+Wiersze_do_boldowania8 <- Tablica_X[[2]]
+
+Tabela8[,2:17] <- lapply(Tabela8[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon6<-kbl(Tabela8, longtable=T, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+row_spec(Wiersze_do_boldowania8, bold = T, hline_after=TRUE) 
+
+klon6<-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon6)
+#klon12 <-str_replace_all(klon6,fixed("{\\linewidth}{!}"),"{0.6}")
+
+klon6
+
+```
+
+
+\newpage
+
+## INDUSTRIES AND MATERIAL TYPES (YTD)
+
+
+```{r MAIN_ESSP_TY, echo=FALSE}
+
+Tablica_X             <- CreateTable(MAIN_ESSP_TY,nazwa_tabeli ="MAIN_ESSP_TY" )
+Tabela9                <- Tablica_X[[1]]
+Wiersze_do_boldowania9 <- Tablica_X[[2]]
+
+Tabela9[,2:17] <- lapply(Tabela9[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon7<-kbl(Tabela9, longtable=T, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+row_spec(Wiersze_do_boldowania9, bold = T, hline_after=TRUE) #,background = "#E3E3E3") 
+
+klon7<-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon7)
+klon7
+
+```
+
+\newpage
+
+## EUROPEAN INDUSTRIES (`r MiesiacAnalizyTekst`)
+
+```{r MAIN_Eur, echo=FALSE}
+
+Tablica_X              <- CreateTable(MAIN_EUR_IND)
+Tabela6                <- Tablica_X[[1]]
+Wiersze_do_boldowania6 <- Tablica_X[[2]]
+
+
+Tabela6[,2:17] <- lapply(Tabela6[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon4<-kbl(Tabela6, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+row_spec(Wiersze_do_boldowania6, bold = T,hline_after = TRUE) #,background = "#E3E3E3"
+
+klon4<-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon4)
+klon4
+
+
+```
+
+\newpage
+
+## EUROPEAN INDUSTRIES (YTD)
+
+```{r MAIN_Eur_Y, echo=FALSE}
+
+Tablica_X             <- CreateTable(MAIN_EUR_IND_Y)
+Tabela7                <- Tablica_X[[1]]
+Wiersze_do_boldowania7 <- Tablica_X[[2]]
+
+Tabela7[,2:17] <- lapply(Tabela7[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon5<-kbl(Tabela7, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+row_spec(Wiersze_do_boldowania7, bold = T,hline_after = TRUE) #background = "#E3E3E3"
+
+klon5<-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon5)
+klon5
+
+
+```
+
+
+\newpage
+<!-- \newgeometry{top=1.4cm,bottom=1.3cm,right=0.7cm,left=0.7cm} -->
+## ES|SP MATERIAL TYPES BY COUNTRY (`r MiesiacAnalizyTekst`)
+
+
+```{r MAINTOTALESSP, echo=FALSE}
+
+Tablica_X             <- CreateTable(MAIN_ESSP,nazwa_tabeli = "MAIN_ESSP")
+Tabela2                <- Tablica_X[[1]]
+Wiersze_do_boldowania2 <- Tablica_X[[2]]
+
+
+Tabela2[,2:17] <- lapply(Tabela2[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+
+klon0<-kbl(Tabela2, longtable=TRUE,booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","repeat_header")) %>% 
+add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(nrow(Tablica_X[[1]])-3, bold = T,background = "#E3E3E3") %>% 
+# row_spec(Wiersze_do_boldowania2, bold = T,background = "#E3E3E3") 
+row_spec(Wiersze_do_boldowania2, bold = T,hline_after=TRUE)   
+  
+
+klon0<-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon0)
+klon0
+
+```
+
+
+
+\newpage
+
+## ES|SP MATERIAL TYPES BY COUNTRY (YTD)
+
+```{r MAINTOTALESSPYTD, echo=FALSE}
+
+Tablica_X              <- CreateTable(MAIN_ESSP_YTD, nazwa_tabeli = "MAIN_ESSP_YTD")
+Tabela3                <- Tablica_X[[1]]
+Wiersze_do_boldowania3 <- Tablica_X[[2]]
+
+Tabela3[,2:17] <- lapply(Tabela3[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+
+klon<-kbl(Tabela3, longtable=TRUE, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(nrow(Tablica_X[[1]])-3, bold = T,background = "#E3E3E3") %>% 
+row_spec(Wiersze_do_boldowania3, bold = T,hline_after=TRUE) #row_spec(Wiersze_do_boldowania3, bold = T,background = "#E3E3E3") 
+
+klon<-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon)
+klon
+
+
+```
+
+
+\newpage
+
+<!-- \newgeometry{top=1.5cm,bottom=1.3cm,right=0.8cm,left=0.8cm} -->
+## WAREHOUSE|DIRECT BY COUNTRY  (`r MiesiacAnalizyTekst`)
+
+\vspace{-1mm}
+```{r MAIN_WhDir_MTH, echo=FALSE}
+
+Tablica_X             <- CreateTable(MAIN_WhDir_MTH,nazwa_tabeli = "MAIN_WhDir_MTH")
+Tabela4                <- Tablica_X[[1]]
+Wiersze_do_boldowania4 <- Tablica_X[[2]]
+TotalWiersz           <- max(Wiersze_do_boldowania4)+1
+Tabela4[,2:17] <- lapply(Tabela4[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon2<-kbl(Tabela4, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(TotalWiersz, bold = T,background = TloTotalTotal)  %>% 
+# row_spec(Wiersze_do_boldowania4, bold = T,background = "#E3E3E3") 
+row_spec(Wiersze_do_boldowania4, bold = T,hline_after = TRUE) 
+
+klon2<-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon2)
+klon2
+
+```
+ 
+\newpage
+
+## WAREHOUSE|DIRECT BY COUNTRY (YTD)
+
+\vspace{-1mm}
+```{r MAIN_WhDir_YTD, echo=FALSE}
+
+Tablica_X              <- CreateTable(MAIN_WhDir_YTD,nazwa_tabeli = "MAIN_WhDir_YTD")
+Tabela5                <- Tablica_X[[1]]
+Wiersze_do_boldowania5 <- Tablica_X[[2]]
+TotalWiersz           <- max(Wiersze_do_boldowania5)+1
+
+Tabela5[,2:17] <- lapply(Tabela5[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon3<-kbl(Tabela5, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania5, bold = T, hline_after = TRUE) %>%  #row_spec(Wiersze_do_boldowania5, bold = T,background = "#E3E3E3") %>% 
+row_spec(TotalWiersz, bold = T,background = TloTotalTotal) 
+
+klon3<-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon3)
+klon3
+
+```
+ 
+
+\newpage
+
+## CEEKAT/EKAT BY COUNTRY (`r MiesiacAnalizyTekst`)
+
+
+```{r EKAT, echo=FALSE}
+
+Tablica_X             <- CreateTable(EKAT)
+Tabela19                <- Tablica_X[[1]]
+Wiersze_do_boldowania19 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+
+Tabela19[,2:17] <- lapply(Tabela19[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon20 <-kbl(Tabela19, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T, background = TloTotalTotal) %>% 
+#column_spec(c(4),background = "#F6D5FF") %>% 
+row_spec(Wiersze_do_boldowania19, bold = T) %>% # ,background = "#E3E3E3") %>% 
+row_spec(podkreslanie, bold = T,hline_after=TRUE, background = "#C9C9C9") 
+
+klon20 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon20)
+klon20
+
+```
+
+
+\newpage
+
+## CEEKAT/EKAT BY COUNTRY (YTD)
+
+
+```{r EKAT_YTD, echo=FALSE}
+
+Tablica_X             <- CreateTable(EKAT_YTD)
+Tabela20                <- Tablica_X[[1]]
+Wiersze_do_boldowania20 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+
+Tabela20[,2:17] <- lapply(Tabela20[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon21 <-kbl(Tabela20, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4),background = "#F6D5FF") %>% 
+row_spec(Wiersze_do_boldowania20, bold = T) %>% #,background = "#E3E3E3") %>% 
+row_spec(podkreslanie, bold = T,hline_after=TRUE, background = "#C9C9C9") 
+
+klon21 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon21)
+klon21
+
+```
+
+
+\newpage
+
+## CEEKAT/EKAT BY CUSTOMER (`r MiesiacAnalizyTekst`)
+
+
+```{r EKAT_CUST, echo=FALSE}
+
+Tablica_X               <- CreateTable(EKAT_CUSTOMERS)
+Tabela21                <- Tablica_X[[1]]
+Wiersze_do_boldowania21 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+Tabela21[,2:17]         <- lapply(Tabela21[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon22 <-kbl(Tabela21,longtable=T, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4),background = "#F6D5FF") %>% 
+row_spec(Wiersze_do_boldowania21, bold = T) %>% #,background = "#E3E3E3") %>% 
+row_spec(podkreslanie, bold = T,hline_after=TRUE) #, background = "#C9C9C9") 
+klon22 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon22)
+klon22
+
+```
+
+\newpage
+
+## CEEKAT/EKAT BY CUSTOMER (YTD)
+
+
+```{r EKAT_CUST_YTD, echo=FALSE}
+
+
+Tablica_X             <- CreateTable(EKAT_CUSTOMERS_YTD)
+Tabela22                <- Tablica_X[[1]]
+Wiersze_do_boldowania22 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+Tabela22[,2:17] <- lapply(Tabela22[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon23 <-kbl(Tabela22,longtable=T, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4),background = "#F6D5FF") %>% 
+row_spec(Wiersze_do_boldowania22, bold = T) %>% #,background = "#E3E3E3") %>% 
+row_spec(podkreslanie, bold = T,hline_after=TRUE)#, background = "#C9C9C9") 
+klon23 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon23)
+klon23
+
+```
+
+
+\newpage
+
+## TOP 20 MATERIAL GROUPS BY GROSS PROFIT (`r MiesiacAnalizyTekst`)
+
+```{r TOP20GP, echo=FALSE}
+
+Tablica_X               <- CreateTable(TOP20GP, nazwa_tabeli ="TOP20GP")
+Tabela12                <- Tablica_X[[1]]
+Wiersze_do_boldowania12 <- Tablica_X[[2]]
+
+Tabela12[,2:17] <- lapply(Tabela12[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon10 <-kbl(Tabela12, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+column_spec(c(8),background = "#FFEBF9") %>% 
+row_spec(Wiersze_do_boldowania12 , bold = T) %>%  #,background = "#E3E3E3") %>% 
+row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal)
+
+klon10 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon10)
+klon10
+
+```
+
+
+```{r WykresTop20, fig.height=3.1,fig.width=10.5}
+WykresPoloczony     <- TopBottom(TOP20GP,"TOP20")
+
+WykresPoloczony
+```
+
+
+\newpage
+
+## TOP 20 MATERIAL GROUPS BY GROSS PROFIT (YTD)
+
+```{r TOP20GPYTD, echo=FALSE}
+
+Tablica_X             <- CreateTable(TOP20GPYTD,nazwa_tabeli ="TOP20GPYTD")
+Tabela13                <- Tablica_X[[1]]
+Wiersze_do_boldowania13 <- Tablica_X[[2]]
+
+Tabela13[,2:17] <- lapply(Tabela13[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon11 <-kbl(Tabela13, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+column_spec(c(8),background = "#FFEBF9") %>% 
+ row_spec(Wiersze_do_boldowania13 , bold = T) %>% #,background = "#E3E3E3") %>%  
+row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal)
+klon11 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon11)
+klon11
+
+```
+
+```{r WykresTop20y, fig.height=3.1,fig.width=10.5}
+WykresPoloczony     <- TopBottom(TOP20GPYTD,"TOP20")
+
+WykresPoloczony
+```
+
+
+\newpage
+
+## TOP 20 MATERIAL GROUPS BY QUANTITY (`r MiesiacAnalizyTekst`)
+
+
+```{r TOP20QUANT, echo=FALSE}
+
+Tablica_X             <- CreateTable(TOP20QUANT,nazwa_tabeli ="TOP20QUANT")
+Tabela14                <- Tablica_X[[1]]
+Wiersze_do_boldowania14 <- Tablica_X[[2]]
+
+Tabela14[,2:17] <- lapply(Tabela14[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon12 <-kbl(Tabela14, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+column_spec(c(4),background = "#FFEBF9")  %>% 
+row_spec(Wiersze_do_boldowania14 , bold = T) %>% #,background = "#E3E3E3") %>% 
+  row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal)
+
+klon12 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon12)
+klon12
+
+```
+
+
+```{r WykresTop20Q, fig.height=3.1,fig.width=10.5}
+WykresPoloczony     <- TopBottom(TOP20QUANT,"TOP20")
+
+WykresPoloczony
+```
+
+
+
+
+\newpage
+
+## TOP 20 MATERIAL GROUPS BY QUANTITY (YTD)
+
+
+```{r TOP20QUANT_YTD, echo=FALSE}
+
+Tablica_X             <- CreateTable(TOP20QUANT_YTD,nazwa_tabeli ="TOP20QUANT_YTD")
+Tabela15                <- Tablica_X[[1]]
+Wiersze_do_boldowania15 <- Tablica_X[[2]]
+
+Tabela15[,2:17] <- lapply(Tabela15[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon13 <-kbl(Tabela15, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+column_spec(c(4),background = "#FFEBF9")  %>% 
+row_spec(Wiersze_do_boldowania15 , bold = T) %>% #,background = "#E3E3E3") %>% 
+  row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal)
+
+klon13 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon13)
+klon13
+
+```
+
+```{r WykresTop20QY, fig.height=3.1,fig.width=10.5}
+WykresPoloczony     <- TopBottom(TOP20QUANT_YTD,"TOP20")
+
+WykresPoloczony
+```
+
+
+
+
+
+\newpage
+
+## BOTTOM 20 MATERIAL GROUPS BY GROSS PROFIT (`r MiesiacAnalizyTekst`)
+
+
+```{r BOTTOM20GP, echo=FALSE}
+
+Tablica_X             <- CreateTable(BOTTOM20GP,nazwa_tabeli ="BOTTOM20GP")
+Tabela16                <- Tablica_X[[1]]
+Wiersze_do_boldowania16 <- Tablica_X[[2]]
+
+Tabela16[,2:17] <- lapply(Tabela16[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon14 <-kbl(Tabela16, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+column_spec(c(8),background = "#FFEBF9") %>% 
+row_spec(Wiersze_do_boldowania16 , bold = T) %>% #,background = "#E3E3E3")  %>% 
+  row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal)
+
+klon14 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon14)
+klon14
+
+```
+
+
+```{r WykresBot, fig.height=3.1,fig.width=10.5}
+WykresPoloczony     <- TopBottom(BOTTOM20GP,"BOTTOM20")
+
+WykresPoloczony
+```
+
+
+
+\newpage
+
+## BOTTOM 20 MATERIAL GROUPS BY GROSS PROFIT (YTD)
+
+
+```{r BOTTOM20GP_YTD, echo=FALSE}
+
+Tablica_X             <- CreateTable(BOTTOM20GP_YTD,nazwa_tabeli ="BOTTOM20GP_YTD")
+Tabela16                <- Tablica_X[[1]]
+Wiersze_do_boldowania16 <- Tablica_X[[2]]
+
+Tabela16[,2:17] <- lapply(Tabela16[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon15 <-kbl(Tabela16, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+column_spec(c(8),background = "#FFEBF9")  %>% 
+row_spec(Wiersze_do_boldowania16 , bold = T) %>% #,background = "#E3E3E3") %>% 
+  row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal)
+
+klon15 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon15)
+klon15
+
+```
+
+```{r WykresBotY, fig.height=3.1,fig.width=10.5}
+WykresPoloczony     <- TopBottom(BOTTOM20GP_YTD,"BOTTOM20")
+
+WykresPoloczony
+```
+
+
+
+
+\newpage
+
+## BOTTOM 20 MATERIAL GROUPS BY QUANTITY (`r MiesiacAnalizyTekst`)
+
+
+```{r BOTTOM20QUANT, echo=FALSE}
+
+Tablica_X             <- CreateTable(BOTTOM20QUANT,nazwa_tabeli = "BOTTOM20QUANT")
+Tabela17                <- Tablica_X[[1]]
+Wiersze_do_boldowania17 <- Tablica_X[[2]]
+
+Tabela17[,2:17] <- lapply(Tabela17[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon16 <-kbl(Tabela17, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+column_spec(c(4),background = "#FFEBF9") %>% 
+row_spec(Wiersze_do_boldowania17, bold = T) %>% #,background = "#E3E3E3")  %>% 
+  row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal)
+
+klon16 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon16)
+klon16
+
+```
+
+```{r WykresBotQ, fig.height=3.1,fig.width=10.5}
+WykresPoloczony     <- TopBottom(BOTTOM20QUANT,"BOTTOM20")
+
+WykresPoloczony
+```
+
+
+
+
+\newpage
+
+## BOTTOM 20 MATERIAL GROUPS BY QUANTITY (YTD)
+
+
+```{r BOTTOM20QUANT_YTD, echo=FALSE}
+
+Tablica_X             <- CreateTable(BOTTOM20QUANT_YTD,nazwa_tabeli = "BOTTOM20QUANT_YTD")
+Tabela18                <- Tablica_X[[1]]
+Wiersze_do_boldowania18 <- Tablica_X[[2]]
+
+Tabela18[,2:17] <- lapply(Tabela18[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon17 <-kbl(Tabela18, booktabs = T,escape = FALSE, align=FormatKolumnyOddzielone,col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+column_spec(c(4),background = "#FFEBF9")  %>% 
+row_spec(Wiersze_do_boldowania18, bold = T) %>% #,background = "#E3E3E3") %>% 
+  row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal)
+
+klon17 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon17)
+klon17
+
+```
+
+
+```{r WykresBotQY, fig.height=3.1,fig.width=10.5}
+WykresPoloczony     <- TopBottom(BOTTOM20QUANT_YTD,"BOTTOM20")
+
+WykresPoloczony
+```
+
+
+
+
+\newpage
+
+
+## BBS BY COUNTRY (`r MiesiacAnalizyTekst`)
+
+Total sales (3rd party + intercompany)
+\vspace{-2mm}
+
+```{r BBSMa, echo=FALSE}
+
+Tablica_X               <- CreateTable(BBSM,nazwa_tabeli = "BBSM")
+Tabela23                <- Tablica_X[[1]]
+Wiersze_do_boldowania23 <- Tablica_X[[2]]
+
+Tabela23[,2:17] <- lapply(Tabela23[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon18<-kbl(Tabela23, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%  
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania23, bold = T,background = "#E3E3E3") %>% 
+  row_spec(nrow(Tablica_X[[1]]), bold = T)#,background = TloTotalTotal)
+
+klon18 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon18)
+klon18
+
+```
+
+
+## BBS BY COUNTRY (YTD)
+
+
+```{r BBSM_YTD, echo=FALSE}
+
+Tablica_X               <- CreateTable(BBSM_YTD,nazwa_tabeli = "BBSM_YTD")
+Tabela26                <- Tablica_X[[1]]
+Wiersze_do_boldowania26 <- Tablica_X[[2]]
+
+Tabela26[,2:17] <- lapply(Tabela26[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon30         <- kbl(Tabela26, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania26, bold = T,background = "#E3E3E3")# %>% 
+#row_spec(nrow(Tablica_X[[1]]), bold = T)#,background = TloTotalTotal)
+
+klon30 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon30)
+klon30
+
+```
+
+
+
+\newpage
+
+
+## BBS BY EUROPEAN INDUSTRY (`r MiesiacAnalizyTekst`)
+
+
+```{r BBS_EI, echo=FALSE}
+
+Tablica_X             <- CreateTable(BBS_EI,nazwa_tabeli = "BBS_EI")
+Tabela24                <- Tablica_X[[1]]
+Wiersze_do_boldowania24 <- Tablica_X[[2]]
+
+Tabela24[,2:17] <- lapply(Tabela24[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon19<-kbl(Tabela24, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),align=FormatKolumnyOddzielone,linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania24, bold = T,background = "#E3E3E3") %>% row_spec(nrow(Tablica_X[[1]]), bold = T)#,background = TloTotalTotal) 
+
+klon19 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon19)
+klon19
+
+
+```
+
+
+
+<!-- \newpage -->
+<!-- ## BBS RESULTS BY KEY CUSTOMERS (`r MiesiacAnalizyTekst`) -->
+
+<!-- ```{r BBS_KEY, echo=FALSE} -->
+
+<!-- Tablica_X             <- CreateTable(BBS_KEY) -->
+<!-- Tabela25                <- Tablica_X[[1]] -->
+<!-- Wiersze_do_boldowania25 <- Tablica_X[[2]] -->
+
+<!-- Tabela25[,2:17] <- lapply(Tabela25[,2:17], function(x) { -->
+<!-- cell_spec(x, -->
+<!-- color = ifelse(x<0,"#C815E0","black")) -->
+<!-- }) -->
+
+<!-- klon20 <-kbl(Tabela25,booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),align=FormatKolumnyOddzielone,linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>%  -->
+<!-- #column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>%  -->
+
+<!-- row_spec(Wiersze_do_boldowania25, bold = T,background = "#E3E3E3") -->
+
+<!-- klon20 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon20) -->
+<!-- klon20 -->
+
+
+
+<!-- ``` -->
+
+
+## BBS BY EUROPEAN INDUSTRY (YTD)
+
+
+```{r BBS_EI_YTD, echo=FALSE}
+
+Tablica_X             <- CreateTable(BBS_EI_YTD,nazwa_tabeli = "BBS_EI_YTD")
+Tabela27                <- Tablica_X[[1]]
+Wiersze_do_boldowania27 <- Tablica_X[[2]]
+
+Tabela27[,2:17] <- lapply(Tabela27[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon31<-kbl(Tabela27, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),align=FormatKolumnyOddzielone,linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania27, bold = T,background = "#E3E3E3") %>% 
+row_spec(nrow(Tablica_X[[1]]), bold = T)#,background = TloTotalTotal)
+
+
+klon31 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon31)
+klon31
+
+
+```
+
+
+\newpage
+## BBS BY KEY CUSTOMERS (YTD)
+
+```{r BBS_KEY_YTD, echo=FALSE}
+
+Tablica_X             <- CreateTable(BBS_KEY_YTD,nazwa_tabeli = "BBS_KEY_YTD")
+Tabela28                <- Tablica_X[[1]]
+Wiersze_do_boldowania28 <- Tablica_X[[2]]
+
+Tabela28[,2:17] <- lapply(Tabela28[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon32 <-kbl(Tabela28,booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),align=FormatKolumnyOddzielone,linesep = "") %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%  
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+
+row_spec(Wiersze_do_boldowania28, bold = T,hline_after=TRUE) %>% #,background = "#E3E3E3") %>% 
+row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) 
+
+klon32 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon32)
+klon32
+
+
+
+```
+
+\newpage
+
+
+## WATER TREATMENT: WATER TREATMENT INDUSTRY + CROSS SELLING (`r MiesiacAnalizyTekst`)
+
+
+
+```{r WT_TOTAL, echo=FALSE}
+
+Tablica_X             <- CreateTable(WT_TOTAL)
+Tabela29                <- Tablica_X[[1]]
+Wiersze_do_boldowania29 <- Tablica_X[[2]]
+
+Tabela29[,2:17] <- lapply(Tabela29[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon33<-kbl(Tabela29, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania29, bold = T,background = "#E3E3E3") %>% 
+  row_spec(nrow(Tablica_X[[1]]), bold = T)#,background = TloTotalTotal) 
+
+klon33 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon33)
+klon33
+
+```
+
+## WATER TREATMENT: WATER TREATMENT INDUSTRY + CROSS SELLING (YTD)
+
+
+```{r WT_TOTAL_YTD, echo=FALSE}
+
+Tablica_X             <- CreateTable(WT_TOTAL_YTD)
+Tabela30                <- Tablica_X[[1]]
+Wiersze_do_boldowania30 <- Tablica_X[[2]]
+
+
+Tabela30[,2:17] <- lapply(Tabela30[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon34<-kbl(Tabela30, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania30, bold = T,background = "#E3E3E3") %>% 
+    row_spec(nrow(Tablica_X[[1]]), bold = T)#,background = TloTotalTotal) 
+
+klon34 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon34)
+klon34
+
+```
+
+
+
+
+\newpage
+## WATER TREATMENT: CROSS SELLING BY COUNTRY (`r MiesiacAnalizyTekst`)
+
+```{r WT_CROSS, echo=FALSE}
+
+Tablica_X             <- CreateTable(WT_CROSS)
+Tabela31                <- Tablica_X[[1]]
+Wiersze_do_boldowania31 <- Tablica_X[[2]]
+
+Tabela31[,2:17] <- lapply(Tabela31[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon35<-kbl(Tabela31, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%  
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania31, bold = T,background = "#E3E3E3") %>% 
+ row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) 
+
+
+klon35 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon35)
+klon35
+
+```
+
+\vspace{5mm}
+## WATER TREATMENT: CROSS SELLING BY COUNTRY (YTD)
+
+```{r WT_CROSS_YTD, echo=FALSE}
+
+Tablica_X             <- CreateTable(WT_CROSS_YTD)
+Tabela32                <- Tablica_X[[1]]
+Wiersze_do_boldowania32 <- Tablica_X[[2]]
+
+Tabela32[,2:17] <- lapply(Tabela32[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon36<-kbl(Tabela32, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania32, bold = T,background = "#E3E3E3") %>% 
+  row_spec(nrow(Tablica_X[[1]]), bold = T)#,background = TloTotalTotal) 
+
+klon36 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon36)
+klon36
+
+```
+
+
+
+\newpage
+<!-- \vspace{5mm} -->
+
+## WATER TREATMENT: CROSS SELLING BY SALES PART/CHANNEL (`r MiesiacAnalizyTekst`)
+
+```{r WT_THIRD, echo=FALSE}
+
+Tablica_X             <- CreateTable(WT_THIRD,nazwa_tabeli = "WT_THIRD")
+Tabela33                <- Tablica_X[[1]]
+Wiersze_do_boldowania33 <- Tablica_X[[2]]
+
+Tabela33[,2:17] <- lapply(Tabela33[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon36<-kbl(Tabela33, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania33,hline_after = TRUE, bold = T)#,background = "#E3E3E3")
+
+klon36 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon36)
+klon36
+
+```
+
+\newpage
+
+## WATER TREATMENT: CROSS SELLING BY SALES PART/CHANNEL (YTD)
+
+\vspace{5mm}
+
+```{r WT_THIRD_YTD, echo=FALSE}
+
+Tablica_X             <- CreateTable(WT_THIRD_YTD, nazwa_tabeli = "WT_THIRD_YTD")
+Tabela34                <- Tablica_X[[1]]
+Wiersze_do_boldowania34 <- Tablica_X[[2]]
+
+Tabela34[,2:17] <- lapply(Tabela34[,2:17], function(x) {
+cell_spec(x, color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon37<-kbl(Tabela34, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania34, bold = T, hline_after=TRUE)#,background = "#E3E3E3")
+
+klon37 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon37)
+klon37
+
+```
+
+
+
+\newpage
+
+##  WATER TREATMENT: CROSS SELLING BY INDUSTRY (`r MiesiacAnalizyTekst`)
+
+
+```{r WT_CS_IND, echo=FALSE}
+
+Tablica_X             <- CreateTable(WT_CS_IND)
+Tabela35                <- Tablica_X[[1]]
+Wiersze_do_boldowania35 <- Tablica_X[[2]]
+
+Tabela35[,2:17] <- lapply(Tabela35[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon38<-kbl(Tabela35, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%  
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania35, bold = T,background = "#E3E3E3") %>% 
+   row_spec(nrow(Tablica_X[[1]]), bold = T)#,background = TloTotalTotal) 
+
+klon38 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon38)
+klon38
+
+```
+
+
+\newpage
+
+## WATER TREATMENT: CROSS SELLING BY INDUSTRY (YTD)
+
+
+```{r WT_CS_IND_YTD, echo=FALSE}
+
+Tablica_X             <- CreateTable(WT_CS_IND_YTD)
+Tabela36                <- Tablica_X[[1]]
+Wiersze_do_boldowania36 <- Tablica_X[[2]]
+
+Tabela36[,2:17] <- lapply(Tabela36[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon39<-kbl(Tabela36, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania36, bold = T,background = "#E3E3E3") %>% 
+  row_spec(nrow(Tablica_X[[1]]), bold = T)#,background = TloTotalTotal) 
+
+klon39 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon39)
+klon39
+
+```
+
+
+\newpage
+## WATER TREATMENT INDUSTRY BY COUNTRY (`r MiesiacAnalizyTekst`)
+
+```{r WT_INDUSTRY, echo=FALSE}
+
+Tablica_X             <- CreateTable(WT_INDUSTRY)
+Tabela37                <- Tablica_X[[1]]
+Wiersze_do_boldowania37 <- Tablica_X[[2]]
+
+Tabela37[,2:17] <- lapply(Tabela37[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon40<-kbl(Tabela37, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%  
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania37, bold = T,background = "#E3E3E3") %>% 
+   row_spec(nrow(Tablica_X[[1]]), bold = T)#,background = TloTotalTotal) 
+
+klon40 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon40)
+klon40
+
+```
+
+## WATER TREATMENT INDUSTRY BY COUNTRY (YTD)
+
+```{r WT_INDUSTRY_YTD, echo=FALSE}
+
+Tablica_X             <- CreateTable(WT_INDUSTRY_YTD)
+Tabela38                <- Tablica_X[[1]]
+Wiersze_do_boldowania38 <- Tablica_X[[2]]
+
+Tabela38[,2:17] <- lapply(Tabela38[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon41<-kbl(Tabela38, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position","scale_down")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%  
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania38, bold = T,background = "#E3E3E3") %>% 
+   row_spec(nrow(Tablica_X[[1]]), bold = T)#,background = TloTotalTotal) 
+
+klon41 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon41)
+klon41
+
+```
+
+
+\newgeometry{top=1.5cm,bottom=1cm,right=4cm,left=1.5cm}
+\newpage
+
+\newgeometry{top=1.5cm,bottom=1cm,right=4cm,left=1.5cm}
+\thispagestyle{empty}
+# BES|BSP RESULTS
+
+\vspace{-1.7cm}
+\rule{730pt}{1.5pt}
+
+\thispagestyle{empty}
+\newgeometry{top=1.5cm,bottom=1.3cm,right=0.8cm,left=0.8cm}
+\newpage
+
+## BES|BSP PRODUCT DIVISION AND MATERIAL TYPE (`r MiesiacAnalizyTekst`)
+
+Monthly - Total sales (3rd party + intercompany*)
+```{r COUNTRIESBYINDUSTESy}
+
+Tablica_X               <- CreateTable(BESBSP_PD_MT,nazwa_tabeli ="BESBSP_PD_MT")
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T, hline_after=TRUE)
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+* ES-essentials, SP-specialties; based on local classification - dependent ONLY on product parameters&local decisions, not connected with customer/industryProduc Division - final division of SD transaction results allocation; dependent on material & customer industry; based on central product basket allocation file
+
+## BES|BSP PRODUCT DIVISION AND MATERIAL TYPE (YTD)
+```{r COUNTRIESBYINDUSTRI}
+
+Tablica_X               <- CreateTable(BESBSP_PD_MT_YTD,nazwa_tabeli ="BESBSP_PD_MT_YTD")
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE)
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+\newpage
+## BES|BSP COUNTRIES BY DIVISION (`r MiesiacAnalizyTekst`)
+
+Monthly - Total sales (3rd party + intercompany*)
+```{r COUNTRIESBYINDTESy}
+
+Tablica_X               <- CreateTable(BESBSP_CRD,nazwa_tabeli = "BESBSP_CRD")
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE)
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+\newpage
+
+## BES|BSP COUNTRIES BY DIVISION (YTD)
+
+```{r COUNTRIEINDUSTRI}
+
+Tablica_X               <- CreateTable(BESBSP_CRD_YTD,nazwa_tabeli = "BESBSP_CRD_YTD")
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T, hline_after=TRUE)
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+\newpage
+## BES|BSP SUBSIDIARIES BY PRODUCT DIVISION (`r MiesiacAnalizyTekst`)
+
+Monthly - Total sales (3rd party + intercompany*)
+```{r COUNTRSBYINDTESy}
+
+Tablica_X               <- CreateTable(BESBSP_SR,nazwa_tabeli ="BESBSP_SR")
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE) %>% 
+row_spec(podkreslanie, bold = T, background = "#C9C9C9")
+
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+\newpage
+
+## BES|BSP SUBSIDIARIES BY PRODUCT DIVISION (YTD)
+
+```{r COUNTRINDUSTRI}
+
+Tablica_X               <- CreateTable(BESBSP_SR_YTD,nazwa_tabeli ="BESBSP_SR_YTD")
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE) %>% 
+row_spec(podkreslanie, bold = T, background = "#C9C9C9")
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+
+\newpage
+## BES|BSP IC-CPM GROUPS BY PRODUCT DIVISION AND MATERIAL TYPE (`r MiesiacAnalizyTekst`)
+
+```{r COUNTRIUSTRI}
+
+Tablica_X               <- CreateTable(BESBSP_ICCPM,nazwa_tabeli ="BESBSP_ICCPM")
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+Tabela40[,2:17]         <- lapply(Tabela40[,2:17], function(x) {cell_spec(x,color = ifelse(x<0,"#C815E0","black"))})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>% row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE) %>% 
+row_spec(podkreslanie, bold = T, background = "#C9C9C9")
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+
+
+
+\newpage
+## BES|BSP IC-CPM GROUPS BY PRODUCT DIVISION AND MATERIAL TYPE (YTD)
+
+```{r COUNTRISTRI}
+
+Tablica_X               <- CreateTable(BESBSP_ICCPM_YTD,nazwa_tabeli ="BESBSP_ICCPM_YTD")
+Tabela41                <- Tablica_X[[1]]
+Wiersze_do_boldowania41 <- Tablica_X[[2]]
+podkreslanie1            <- Tablica_X[[3]]
+Tabela41[,2:17] <- lapply(Tabela41[,2:17], function(x) {cell_spec(x,color = ifelse(x<0,"#C815E0","black"))})
+
+klon44 <- kbl(Tabela41, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania41, bold = T,hline_after=TRUE) %>% 
+row_spec(podkreslanie1, bold = T,background = "#C9C9C9")#, background = "#C9C9C9")
+
+klon44 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon44)
+klon44
+
+```
+
+
+
+
+\newpage
+## BES|BSP PRODUCT DIVISIONS BY IC-CPM AND MATERIAL TYPE (`r MiesiacAnalizyTekst`)
+
+```{r COTRIUSTRI}
+
+Tablica_X               <- CreateTable(BESBSP_PDICCPM,nazwa_tabeli = "BESBSP_PDICCPM")
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE) %>% 
+row_spec(podkreslanie, bold = T, background = "#C9C9C9")
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+
+
+
+\newpage
+## BES|BSP PRODUCT DIVISIONS BY IC-CPM AND MATERIAL TYPE (YTD)
+
+```{r COUNTRIRI}
+
+Tablica_X               <- CreateTable(BESBSP_PDICCPM_YTD,nazwa_tabeli = "BESBSP_PDICCPM")
+Tabela40                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+Tabela40[,2:17] <- lapply(Tabela40[,2:17], function(x) {
+cell_spec(x,
+color = ifelse(x<0,"#C815E0","black"))
+})
+
+klon43 <- kbl(Tabela40, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T) %>%   row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+#column_spec(c(4,5,8,9,12,13,16,17),background = "#E7EAFF") %>% 
+row_spec(Wiersze_do_boldowania40, bold = T,hline_after=TRUE) %>% 
+row_spec(podkreslanie, bold = T, background = "#C9C9C9") 
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+
+
+
+\newpage
+## BES|BSP INDUSTRIES BY PRODUCT DIVISION (`r MiesiacAnalizyTekst`)
+
+Monthly - Total sales (3rd party + intercompany*)
+```{r COUNTRSBYDTESy}
+
+Tablica_X               <- CreateTable(BESBSP_IRPD,nazwa_tabeli = "BESBSP_IRPD")
+Tabela41                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+BoldowaniePomocnicze    <- Tablica_X[[4]]
+
+
+Tabela41[,2:17]         <- lapply(Tabela41[,2:17], function(x) {
+                                  cell_spec(x,
+                                  color = ifelse(x<0,"#C815E0","black"))
+                                  })
+
+do_kolorow<-data.frame(nazwa_kategorii="",odWiersza=as.numeric("0"),doWiersza=as.numeric("0"))
+for(dlugosc in 1: length(BoldowaniePomocnicze)){
+  z                    <- str_count(BoldowaniePomocnicze[dlugosc],"[0-9]")
+  dlugoscNazwyKategori <- nchar(BoldowaniePomocnicze[dlugosc])-z
+ 
+  do_kolorow[nrow(do_kolorow)+1,] <- list(str_sub(BoldowaniePomocnicze[dlugosc],1,dlugoscNazwyKategori),
+                                      do_kolorow[nrow(do_kolorow),3] + 1,
+                                      do_kolorow[nrow(do_kolorow),3] +          as.numeric(str_sub(BoldowaniePomocnicze[dlugosc],(nchar(BoldowaniePomocnicze[dlugosc])-z)+1,nchar(BoldowaniePomocnicze[dlugosc]))) )
+  
+}
+ 
+do_kolorow <- do_kolorow[2:nrow(do_kolorow),]
+
+
+klon43 <- kbl(Tabela41, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T)  %>% 
+
+
+row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+  
+  
+row_spec(Wiersze_do_boldowania40 ,bold = T) %>% # ,background = "#E3E3E3") %>%
+
+# row_spec(do_kolorow[1,2]:do_kolorow[1,3],background = pAleta[1]) %>%
+# row_spec(do_kolorow[2,2]:do_kolorow[2,3],background = pAleta[2]) %>%
+# row_spec(do_kolorow[3,2]:do_kolorow[3,3],background = pAleta[3]) %>%
+# row_spec(do_kolorow[4,2]:do_kolorow[4,3],background = pAleta[4]) %>%
+# row_spec(do_kolorow[5,2]:do_kolorow[5,3],background = pAleta[5]) %>%
+# row_spec(do_kolorow[6,2]:do_kolorow[6,3],background = pAleta[6]) %>%
+# row_spec(do_kolorow[7,2]:do_kolorow[7,3],background = pAleta[7]) %>%
+
+pack_rows(do_kolorow[1,1],do_kolorow[1,2],do_kolorow[1,3], latex_gap_space = "0.7em", background = pAleta2[5]) %>%
+pack_rows(do_kolorow[2,1],do_kolorow[2,2],do_kolorow[2,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>% 
+pack_rows(do_kolorow[3,1],do_kolorow[3,2],do_kolorow[3,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>%
+pack_rows(do_kolorow[4,1],do_kolorow[4,2],do_kolorow[4,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>%
+pack_rows(do_kolorow[5,1],do_kolorow[5,2],do_kolorow[5,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>% 
+pack_rows(do_kolorow[6,1],do_kolorow[6,2],do_kolorow[6,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>% 
+pack_rows(do_kolorow[7,1],do_kolorow[7,2],do_kolorow[7,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>% 
+
+row_spec(podkreslanie, bold = T, background = "#C9C9C9")
+
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+
+```
+
+\newpage
+
+## BES|BSP INDUSTRIES BY PRODUCT DIVISION (YTD)
+
+```{r COUNTRINDTRI}
+
+Tablica_X               <- CreateTable(BESBSP_IRPD_YTD,nazwa_tabeli = "BESBSP_IRPD_YTD")
+Tabela41                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+BoldowaniePomocnicze    <- Tablica_X[[4]]
+
+
+Tabela41[,2:17]         <- lapply(Tabela41[,2:17], function(x) {
+                                  cell_spec(x,
+                                  color = ifelse(x<0,"#C815E0","black"))
+                                  })
+
+do_kolorow<-data.frame(nazwa_kategorii="",odWiersza=as.numeric("0"),doWiersza=as.numeric("0"))
+for(dlugosc in 1: length(BoldowaniePomocnicze)){
+  z                    <- str_count(BoldowaniePomocnicze[dlugosc],"[0-9]")
+  dlugoscNazwyKategori <- nchar(BoldowaniePomocnicze[dlugosc])-z
+ 
+  do_kolorow[nrow(do_kolorow)+1,] <- list(str_sub(BoldowaniePomocnicze[dlugosc],1,dlugoscNazwyKategori),
+                                      do_kolorow[nrow(do_kolorow),3] + 1,
+                                      do_kolorow[nrow(do_kolorow),3] +          as.numeric(str_sub(BoldowaniePomocnicze[dlugosc],(nchar(BoldowaniePomocnicze[dlugosc])-z)+1,nchar(BoldowaniePomocnicze[dlugosc]))) )
+  
+}
+ 
+do_kolorow <- do_kolorow[2:nrow(do_kolorow),]
+
+
+klon43 <- kbl(Tabela41, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header"))   %>% 
+
+
+row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+  
+  
+row_spec(Wiersze_do_boldowania40, bold = T) %>% # ,background = "#E3E3E3") %>%
+
+  # 
+# row_spec(do_kolorow[1,2]:do_kolorow[1,3],background = pAleta[1]) %>%
+# row_spec(do_kolorow[2,2]:do_kolorow[2,3],background = pAleta[2]) %>%
+# row_spec(do_kolorow[3,2]:do_kolorow[3,3],background = pAleta[3]) %>%
+# row_spec(do_kolorow[4,2]:do_kolorow[4,3],background = pAleta[4]) %>%
+# row_spec(do_kolorow[5,2]:do_kolorow[5,3],background = pAleta[5]) %>%
+# row_spec(do_kolorow[6,2]:do_kolorow[6,3],background = pAleta[6]) %>%
+# row_spec(do_kolorow[7,2]:do_kolorow[7,3],background = pAleta[7]) %>%
+#   
+# row_spec(do_kolorow[1,2]:do_kolorow[1,3]) %>%
+# row_spec(do_kolorow[2,2]:do_kolorow[2,3]) %>%
+# row_spec(do_kolorow[3,2]:do_kolorow[3,3]) %>%
+# row_spec(do_kolorow[4,2]:do_kolorow[4,3]) %>%
+# row_spec(do_kolorow[5,2]:do_kolorow[5,3]) %>%
+# row_spec(do_kolorow[6,2]:do_kolorow[6,3]) %>%
+# row_spec(do_kolorow[7,2]:do_kolorow[7,3]) %>%
+
+pack_rows(do_kolorow[1,1],do_kolorow[1,2],do_kolorow[1,3], latex_gap_space = "0.7em", background = pAleta2[5]) %>%
+pack_rows(do_kolorow[2,1],do_kolorow[2,2],do_kolorow[2,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>% 
+pack_rows(do_kolorow[3,1],do_kolorow[3,2],do_kolorow[3,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>%
+pack_rows(do_kolorow[4,1],do_kolorow[4,2],do_kolorow[4,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>%
+pack_rows(do_kolorow[5,1],do_kolorow[5,2],do_kolorow[5,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>% 
+pack_rows(do_kolorow[6,1],do_kolorow[6,2],do_kolorow[6,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>% 
+pack_rows(do_kolorow[7,1],do_kolorow[7,2],do_kolorow[7,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>% 
+
+row_spec(podkreslanie, bold = T, background = "#C9C9C9") %>% 
+  
+add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T)
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+```
+
+
+
+\newpage
+## BES|BSP DIVISIONS BY INDUSTRY (`r MiesiacAnalizyTekst`)
+
+Monthly - Total sales (3rd party + intercompany*)
+```{r COUTRSBYTESy}
+
+
+Tablica_X               <- CreateTable(BESBSP_DI,nazwa_tabeli = "BESBSP_DI")
+Tabela41                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+BoldowaniePomocnicze    <- Tablica_X[[4]]
+
+
+Tabela41[,2:17]         <- lapply(Tabela41[,2:17], function(x) {
+                                  cell_spec(x,
+                                  color = ifelse(x<0,"#C815E0","black"))
+                                  })
+
+do_kolorow <-data.frame(nazwa_kategorii="",odWiersza=as.numeric("0"),doWiersza=as.numeric("0"))
+for(dlugosc in 1: length(BoldowaniePomocnicze)){
+  z                               <- str_count(BoldowaniePomocnicze[dlugosc],"[0-9]")
+  dlugoscNazwyKategori            <- nchar(BoldowaniePomocnicze[dlugosc])-z
+  do_kolorow[nrow(do_kolorow)+1,] <- list(str_sub(BoldowaniePomocnicze[dlugosc],1,dlugoscNazwyKategori),
+                                      do_kolorow[nrow(do_kolorow),3] + 1,
+                                      do_kolorow[nrow(do_kolorow),3] +          as.numeric(str_sub(BoldowaniePomocnicze[dlugosc],(nchar(BoldowaniePomocnicze[dlugosc])-z)+1,nchar(BoldowaniePomocnicze[dlugosc]))) )
+  
+}
+ 
+do_kolorow <- do_kolorow[2:nrow(do_kolorow),]
+
+
+klon43 <- kbl(Tabela41, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T)  %>% 
+
+
+row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+  
+  
+row_spec(Wiersze_do_boldowania40, bold = T) %>% # ,background = "#E3E3E3") %>%
+
+# row_spec(do_kolorow[1,2]:do_kolorow[1,3],background = pAleta[1]) %>%
+# row_spec(do_kolorow[2,2]:do_kolorow[2,3],background = pAleta[2]) %>%
+# row_spec(do_kolorow[3,2]:do_kolorow[3,3],background = pAleta[3]) %>%
+
+
+pack_rows(do_kolorow[1,1],do_kolorow[1,2],do_kolorow[1,3], latex_gap_space = "0.7em", background = pAleta2[5]) %>%
+pack_rows(do_kolorow[2,1],do_kolorow[2,2],do_kolorow[2,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>% 
+pack_rows(do_kolorow[3,1],do_kolorow[3,2],do_kolorow[3,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>%   
+
+row_spec(podkreslanie, bold = T, background = "#C9C9C9")
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+```
+
+\newpage
+
+## BES|BSP DIVISIONS BY INDUSTRY (YTD)
+
+```{r COUNTRITRI}
+
+Tablica_X               <- CreateTable(BESBSP_DI_YTD,nazwa_tabeli = "BESBSP_DI_YTD")
+Tabela41                <- Tablica_X[[1]]
+Wiersze_do_boldowania40 <- Tablica_X[[2]]
+podkreslanie            <- Tablica_X[[3]]
+BoldowaniePomocnicze    <- Tablica_X[[4]]
+
+
+Tabela41[,2:17]         <- lapply(Tabela41[,2:17], function(x) {
+                                  cell_spec(x,
+                                  color = ifelse(x<0,"#C815E0","black"))
+                                  })
+
+do_kolorow<-data.frame(nazwa_kategorii="",odWiersza=as.numeric("0"),doWiersza=as.numeric("0"))
+for(dlugosc in 1: length(BoldowaniePomocnicze)){
+  z                    <- str_count(BoldowaniePomocnicze[dlugosc],"[0-9]")
+  dlugoscNazwyKategori <- nchar(BoldowaniePomocnicze[dlugosc])-z
+ 
+  do_kolorow[nrow(do_kolorow)+1,] <- list(str_sub(BoldowaniePomocnicze[dlugosc],1,dlugoscNazwyKategori),
+                                      do_kolorow[nrow(do_kolorow),3] + 1,
+                                      do_kolorow[nrow(do_kolorow),3] +          as.numeric(str_sub(BoldowaniePomocnicze[dlugosc],(nchar(BoldowaniePomocnicze[dlugosc])-z)+1,nchar(BoldowaniePomocnicze[dlugosc]))) )
+  
+}
+ 
+do_kolorow <- do_kolorow[2:nrow(do_kolorow),]
+
+
+klon43 <- kbl(Tabela41, longtable=TRUE, booktabs = T,escape = FALSE, col.names=c(" ",rep(c("ActYear","PreYear","YearToY","YearToY"),4)),linesep = "",align=FormatKolumnyOddzielone) %>% kable_styling(latex_options = c("hold_position", "repeat_header")) %>% add_header_above(c(" "=1,"QUANTITY MT"=4, "GROSS PROFIT TEUR"=4,"TURNOVER TEUR"=4, "GP|MT"=4),bold = T)  %>% 
+
+
+row_spec(nrow(Tablica_X[[1]]), bold = T,background = TloTotalTotal) %>% 
+  
+  
+row_spec(Wiersze_do_boldowania40, bold = T) %>% # ,background = "#E3E3E3") %>%
+
+# row_spec(do_kolorow[1,2]:do_kolorow[1,3],background = pAleta[1]) %>%
+# row_spec(do_kolorow[2,2]:do_kolorow[2,3],background = pAleta[2]) %>%
+# row_spec(do_kolorow[3,2]:do_kolorow[3,3],background = pAleta[3]) %>%
+
+
+
+pack_rows(do_kolorow[1,1],do_kolorow[1,2],do_kolorow[1,3], latex_gap_space = "0.7em", background = pAleta2[5]) %>%
+pack_rows(do_kolorow[2,1],do_kolorow[2,2],do_kolorow[2,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>% 
+pack_rows(do_kolorow[3,1],do_kolorow[3,2],do_kolorow[3,3], latex_gap_space = "1.2em", background = pAleta2[5]) %>% 
+row_spec(podkreslanie, bold = T, background = "#C9C9C9") 
+
+klon43 <-gsub("(\\b[0-9]{4,15}\\b)","\\\\numprint{\\1}",klon43)
+klon43
+```
+
+
+
+
+
+
+\newgeometry{top=1.5cm,bottom=1cm,right=4cm,left=1.5cm}
+
+\newpage
+\thispagestyle{empty}
+# COMMENTS
+\vspace{-1.7cm}
+\rule{730pt}{1.5pt}
+
+
+\newpage
+
+SOON
+
+
+<!-- \rule{730pt}{1.5pt} -->
+<!-- \thispagestyle{empty} -->
+
+<!-- \newgeometry{top=1.5cm,bottom=1.3cm,right=4cm,left=0.8cm} -->
+<!-- \newpage -->
+<!-- ## KEY FACTORS THAT IMPACT THE RESULT -->
+<!-- ### BALTICS -->
+
+<!-- \newpage -->
+<!-- ### BULGARIA -->
+
+<!-- \newpage -->
+<!-- ### CROATIA|SLOVENIA -->
+
+<!-- \newpage -->
+<!-- ### HUNGARY -->
+
+
+\thispagestyle{empty}
+
+
+crosschecking raport:
+
+
+
+OK!
+
+
+time of raport creation: \pdfdate
+
+
+pilot
+patchwork
+packages
+
